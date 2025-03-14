@@ -9,6 +9,7 @@
     <Version>1.0.0.0</Version>
     <Authors>James Croft</Authors>
     <Copyright>Copyright © James Croft. All rights reserved.</Copyright>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/jamesmcroft/dotnet-pdf2image</PackageProjectUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageIcon>ProjectLogo.png</PackageIcon>
@@ -21,6 +22,7 @@
   <ItemGroup>
     <None Include="..\..\assets\ProjectLogo.png" Pack="true" PackagePath=""/>
     <None Include="..\..\LICENSE" Pack="true" PackagePath=""/>
+    <None Include="..\..\README.md" Pack="true" PackagePath=""/>
   </ItemGroup>
 
   <ItemGroup>
