@@ -1,0 +1,38 @@
+name: Feature Request 🚀
+description: Submit a proposal for a new feature or enhancement
+title: "[Feature]: "
+labels:
+  - enhancement
+  - triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Thank you for taking the time to suggest a new feature!
+  - type: textarea
+    id: description
+    attributes:
+      label: Feature Description
+      description: A clear and concise description of the feature you are proposing.
+      placeholder: |
+        I would like to see a new feature that converts PDFs to JPEGs.
+    validations:
+      required: true
+  - type: textarea
+    id: usecase
+    attributes:
+      label: Use Case
+      description: Please describe the use case for this feature.
+      placeholder: |
+        This feature would be useful for users who need to convert PDFs to JPEGs for downstream processing.
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why do you believe this feature is important?
+      placeholder: |
+        There is currently limited support for converting PDFs to JPEGs, and this feature would fill that gap.
+    validations:
+      required: true

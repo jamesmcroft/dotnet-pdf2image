@@ -1,0 +1,63 @@
+name: Bug Report 🐛
+description: Create a report to help us improve
+title: "[Bug]: "
+labels:
+  - bug
+  - triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Please follow these steps first:
+  - type: markdown
+    attributes:
+      value: |
+        ## Troubleshooting
+        Please make reasonable efforts to troubleshoot and rule out issues with the setup or configuration of your development environment.
+  - type: markdown
+    attributes:
+      value: |
+        > [!IMPORTANT]
+        > If insufficient information is provided via the following template, the issue might be closed without further consideration or investigation.
+
+        ---
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Please describe accurately how we can reproduce/verify the bug.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: A clear and concise description of what you expected to happen.
+      placeholder: I expected the code to run without any errors.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: A clear and concise description of what actually happened.
+      placeholder: The code failed to run with the error `...`
+    validations:
+      required: true
+  - type: textarea
+    id: envinfo
+    attributes:
+      label: Environment Info
+      description: If using a local environment, please provide details about your local setup.
+      placeholder: |
+        - OS: Windows 10
+        - .NET version: 9.x
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Anything else that might be relevant
+    validations:
+      required: false
