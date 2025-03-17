@@ -1,4 +1,4 @@
-# pdf2image - .NET
+# pdf2image-dotnet
 
 [![GitHub release](https://img.shields.io/github/release/jamesmcroft/dotnet-pdf2image.svg)](https://github.com/jamesmcroft/dotnet-pdf2image/releases)
 [![NuGet](https://img.shields.io/nuget/v/pdf2image-dotnet)](https://www.nuget.org/packages/pdf2image-dotnet/)
