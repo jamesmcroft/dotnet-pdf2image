@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31710.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pdf2Image", "Pdf2Image\Pdf2Image.csproj", "{8DB30B84-20DD-B36B-2DD8-1598650F9103}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pdf2Image.Tests", "..\tests\Pdf2Image.Tests\Pdf2Image.Tests.csproj", "{34EDC77A-D919-48C2-B586-940E968C2489}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{8DB30B84-20DD-B36B-2DD8-1598650F9103}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8DB30B84-20DD-B36B-2DD8-1598650F9103}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8DB30B84-20DD-B36B-2DD8-1598650F9103}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34EDC77A-D919-48C2-B586-940E968C2489}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34EDC77A-D919-48C2-B586-940E968C2489}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34EDC77A-D919-48C2-B586-940E968C2489}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34EDC77A-D919-48C2-B586-940E968C2489}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
