@@ -55,7 +55,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nuget-packages
-          path: src/**/*.[s]nupkg
+          path: src/**/*.{nupkg,snupkg}
 
   publish:
     if: startsWith(github.ref, 'refs/tags/v')
