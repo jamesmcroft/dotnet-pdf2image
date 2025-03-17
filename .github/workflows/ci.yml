@@ -73,10 +73,11 @@ jobs:
           dotnet-version: 9.0.x
 
       - name: Download NuGet artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: nuget-packages
+          path: artifacts
 
       - name: Publish NuGet packages
         run: |
-          nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
+          nuget push artifacts\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
