@@ -65,12 +65,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v1
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
         with:
-          dotnet-version: 9.0.x
+          nuget-version: latest
 
       - name: Download NuGet artifacts
         uses: actions/download-artifact@v4
