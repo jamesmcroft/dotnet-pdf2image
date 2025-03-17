@@ -52,7 +52,7 @@ jobs:
         run: dotnet build $SOLUTION --configuration $BUILD_CONFIG -p:Version=$BUILD_VERSION --no-restore
 
       - name: Upload NuGet artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: nuget-packages
           path: src/**/*.[s]nupkg
