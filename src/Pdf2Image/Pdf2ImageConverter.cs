@@ -140,7 +140,7 @@ public static class Pdf2ImageConverter
             outputNames.Add($"output-{i:D4}");
         }
 
-        var tasks = new List<Task<(string uid, byte[] stoutData, string stderr)>>();
+        var tasks = new List<Task<(string uid, byte[] stoutData, string stderr, int exitCode)>>();
         for (var i = 0; i < concurrency; i++)
         {
             var (localFirst, localLast) = pageRanges[Math.Min(i, pageRanges.Count - 1)];
@@ -171,17 +171,16 @@ public static class Pdf2ImageConverter
 
         // Gather the final images
         List<byte[]> allImages = [];
-        foreach (var (uid, stdoutData, stderr) in results)
+        foreach (var (uid, stdoutData, stderr, exitCode) in results)
         {
             if (!string.IsNullOrEmpty(stderr))
             {
-                Debug.WriteLine($"Error converting PDF to images: {stderr}");
+                Debug.WriteLine($"Poppler stderr output: {stderr}");
+            }
 
-                if (!stderr.Contains("Syntax Error"))
-                {
-                    // If the error is not a syntax error, throw an exception.
-                    throw new PdfConvertException($"Error converting PDF to images: {stderr}");
-                }
+            if (exitCode != 0)
+            {
+                throw new PdfConvertException($"Error converting PDF to images (exit code {exitCode}): {stderr}");
             }
 
 
@@ -247,7 +246,7 @@ public static class Pdf2ImageConverter
         return results;
     }
 
-    private static async Task<(string uid, byte[] stdoutData, string stderr)> RunPopplerAsync(
+    private static async Task<(string uid, byte[] stdoutData, string stderr, int exitCode)> RunPopplerAsync(
         string uid,
         ProcessStartInfo psi)
     {
@@ -273,7 +272,7 @@ public static class Pdf2ImageConverter
         var stderr = await stdErrTask;
 
         var stdoutData = stdoutMemory.ToArray();
-        return (uid, stdoutData, stderr);
+        return (uid, stdoutData, stderr, proc.ExitCode);
     }
 
     private static (string uid, ProcessStartInfo psi) BuildPopplerProcessInfo(
@@ -324,14 +323,14 @@ public static class Pdf2ImageConverter
         List<string> GetCommandArgs()
         {
             List<string> args = [];
-            args.AddRange(["-r", dpi.ToString(CultureInfo.InvariantCulture), pdfPath]);
+            args.AddRange(["-r", dpi.ToString(CultureInfo.InvariantCulture)]);
 
             if (useCropbox)
             {
                 args.Add("-cropbox");
             }
 
-            if (hideAnnotations)
+            if (hideAnnotations && !usePdfCairo)
             {
                 args.Add("-hide-annotations");
             }
@@ -360,12 +359,6 @@ public static class Pdf2ImageConverter
             };
 
             args.AddRange([$"-{formatArg}"]);
-
-            if (!string.IsNullOrEmpty(outputFolder))
-            {
-                var outPath = Path.Combine(outputFolder, outputFile);
-                args.Add(outPath);
-            }
 
             if (!string.IsNullOrEmpty(userPassword))
             {
@@ -396,6 +389,14 @@ public static class Pdf2ImageConverter
             else if (h != null)
             {
                 args.AddRange(["-scale-to-x", "-1", "-scale-to-y", h.Value.ToString(CultureInfo.InvariantCulture)]);
+            }
+
+            args.Add(pdfPath);
+
+            if (!string.IsNullOrEmpty(outputFolder))
+            {
+                var outPath = Path.Combine(outputFolder, outputFile);
+                args.Add(outPath);
             }
 
             return args;

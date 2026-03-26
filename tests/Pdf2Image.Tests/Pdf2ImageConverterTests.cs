@@ -216,4 +216,64 @@ public class Pdf2ImageConverterTests
             await Pdf2ImageConverter.FromPathAsync(TestPdfPath, options);
         });
     }
+
+    [Test]
+    public async Task FromPathAsync_TiffFormat_ConvertsAllPages()
+    {
+        // Arrange - TIFF uses pdftocairo path
+        var options = new PdfConverterOptions
+        {
+            Format = PdfConverterOptionsFormat.TIFF,
+            Dpi = 100,
+            PopplerPath = popplerPath
+        };
+
+        // Act
+        var images = await Pdf2ImageConverter.FromPathAsync(TestPdfPath, options);
+
+        // Assert
+        Assert.That(images, Is.Not.Null.And.Not.Empty);
+        Assert.That(images.Count, Is.EqualTo(13));
+    }
+
+    [Test]
+    public async Task FromPathAsync_PngWithHideAnnotations_ConvertsSuccessfully()
+    {
+        // Arrange - PNG uses pdftocairo, which does not support -hide-annotations.
+        // The converter should silently skip the flag for pdftocairo.
+        var options = new PdfConverterOptions
+        {
+            Format = PdfConverterOptionsFormat.PNG,
+            Dpi = 100,
+            HideAnnotations = true,
+            PopplerPath = popplerPath
+        };
+
+        // Act
+        var images = await Pdf2ImageConverter.FromPathAsync(TestPdfPath, options);
+
+        // Assert
+        Assert.That(images, Is.Not.Null.And.Not.Empty);
+        Assert.That(images.Count, Is.EqualTo(13));
+    }
+
+    [Test]
+    public async Task FromPathAsync_JpegWithHideAnnotations_ConvertsSuccessfully()
+    {
+        // Arrange - JPEG uses pdftoppm, which supports -hide-annotations
+        var options = new PdfConverterOptions
+        {
+            Format = PdfConverterOptionsFormat.JPEG,
+            Dpi = 100,
+            HideAnnotations = true,
+            PopplerPath = popplerPath
+        };
+
+        // Act
+        var images = await Pdf2ImageConverter.FromPathAsync(TestPdfPath, options);
+
+        // Assert
+        Assert.That(images, Is.Not.Null.And.Not.Empty);
+        Assert.That(images.Count, Is.EqualTo(13));
+    }
 }
