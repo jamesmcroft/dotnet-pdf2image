@@ -64,6 +64,9 @@ jobs:
       - name: Build
         run: dotnet build $SOLUTION --configuration $BUILD_CONFIG --no-restore -p:Version=$BUILD_VERSION
 
+      - name: Install Poppler
+        run: sudo apt-get update -qq && sudo apt-get install -yqq poppler-utils
+
       - name: Run tests
         run: >
           dotnet test $SOLUTION
