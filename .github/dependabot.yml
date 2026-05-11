@@ -14,7 +14,7 @@ updates:
       patterns:
         - "coverlet*"
         - "Microsoft.NET.Test*"
-        - "xunit*"
+        - "NUnit*"
     analyzers:
       patterns:
         - "StyleCop*"
