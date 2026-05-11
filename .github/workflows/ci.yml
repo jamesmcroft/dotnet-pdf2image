@@ -11,6 +11,7 @@ on:
       - tests/**
       - build/**
       - .github/workflows/ci.yml
+      - global.json
   pull_request:
     branches:
       - main
@@ -19,21 +20,27 @@ on:
       - tests/**
       - build/**
       - .github/workflows/ci.yml
+      - global.json
   workflow_dispatch:
 
-jobs:
-  build:
-    env:
-      BUILD_CONFIG: Release
-      SOLUTION: "src/Pdf2Image.sln"
+permissions:
+  contents: read
+  pull-requests: write
 
+jobs:
+  build-test:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v6
+    env:
+      BUILD_CONFIG: "Release"
+      SOLUTION: "src/Pdf2Image.sln"
 
-      - name: Get build version
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Get Build Version
         run: |
           Import-Module .\build\Get-BuildVersion.psm1
           Write-Host $Env:GITHUB_REF
@@ -41,42 +48,96 @@ jobs:
           echo "BUILD_VERSION=$version" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
         shell: pwsh
 
-      - name: Setup dotnet
+      - name: Setup .NET 8.0
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 8.0.x
+
+      - name: Setup .NET 10.0
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
 
       - name: Restore dependencies
         run: dotnet restore $SOLUTION
 
-      - name: Build solution
-        run: dotnet build $SOLUTION --configuration $BUILD_CONFIG -p:Version=$BUILD_VERSION --no-restore
+      - name: Build
+        run: dotnet build $SOLUTION --configuration $BUILD_CONFIG --no-restore -p:Version=$BUILD_VERSION
 
-      - name: Upload NuGet artifacts
-        uses: actions/upload-artifact@v7
+      - name: Run tests
+        run: >
+          dotnet test $SOLUTION
+          --configuration $BUILD_CONFIG
+          --no-restore
+          --no-build
+          --collect:"XPlat Code Coverage"
+
+      - name: Generate coverage report
+        uses: danielpalme/ReportGenerator-GitHub-Action@5
         with:
-          name: nuget-packages
-          path: |
-            src/**/*.nupkg
-            src/**/*.snupkg
+          reports: "**/coverage.cobertura.xml"
+          targetdir: "coverage-report"
+          reporttypes: "MarkdownSummaryGithub;Cobertura"
+
+      - name: Publish coverage to workflow summary
+        run: cat coverage-report/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Post coverage to PR
+        if: github.event_name == 'pull_request'
+        run: gh pr comment $PR_NUMBER --edit-last --create-if-none --body-file coverage-report/SummaryGithub.md
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.number }}
 
   publish:
+    needs: build-test
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: build
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Download NuGet artifacts
-        uses: actions/download-artifact@v8
-        with:
-          name: nuget-packages
-          path: artifacts
+    env:
+      BUILD_CONFIG: "Release"
+      SOLUTION: "src/Pdf2Image.sln"
 
-      - name: Setup dotnet
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Get Build Version
+        run: |
+          Import-Module .\build\Get-BuildVersion.psm1
+          Write-Host $Env:GITHUB_REF
+          $version = Get-BuildVersion -VersionString $Env:GITHUB_REF
+          echo "BUILD_VERSION=$version" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
+        shell: pwsh
+
+      - name: Setup .NET 8.0
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 8.0.x
 
-      - name: Publish NuGet packages
+      - name: Setup .NET 10.0
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore $SOLUTION
+
+      - name: Build
+        run: dotnet build $SOLUTION --configuration $BUILD_CONFIG --no-restore -p:Version=$BUILD_VERSION
+
+      - name: Pack
+        run: >
+          dotnet pack src/Pdf2Image/Pdf2Image.csproj
+          --configuration $BUILD_CONFIG
+          --no-build
+          -p:Version=$BUILD_VERSION
+          --output ./nupkg
+
+      - name: Publish to NuGet.org
         run: |
-          dotnet nuget push artifacts/**/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
+          Get-ChildItem ./nupkg -Filter *.nupkg | ForEach-Object {
+            dotnet nuget push $_.FullName --source 'https://api.nuget.org/v3/index.json' --api-key '${{ secrets.NUGET_API_KEY }}' --skip-duplicate
+          }
+        shell: pwsh
